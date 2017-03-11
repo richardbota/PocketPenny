@@ -2,38 +2,33 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Web.Http;
+using System.Web.Mvc;
+using PocketPenny.Models.ViewModels.Shop;
+using PocketPenny.Models.Data;
 
 namespace PocketPenny.Areas.Admin.Controllers
 {
-    public class ShopController : ApiController
+    public class ShopController : Controller
     {
-        // GET: api/Shop
-        public IEnumerable<string> Get()
+        // GET: Admin/Shop/Categories
+        public ActionResult Categories()
         {
-            return new string[] { "value1", "value2" };
-        }
+            // Declare list of models
+            List<CategoryVM> categoryVmList;
 
-        // GET: api/Shop/5
-        public string Get(int id)
-        {
-            return "value";
-        }
+            using (Db db = new Db())
+            {
+                // Init the list
+                categoryVmList = db.Categories
+                                .ToArray()
+                                .OrderBy(x => x.Sorting)
+                                .Select(x => new CategoryVM(x))
+                                .ToList();
+            }
 
-        // POST: api/Shop
-        public void Post([FromBody]string value)
-        {
-        }
 
-        // PUT: api/Shop/5
-        public void Put(int id, [FromBody]string value)
-        {
-        }
-
-        // DELETE: api/Shop/5
-        public void Delete(int id)
-        {
+            // Return view with list
+            return View(categoryVmList);
         }
     }
 }
