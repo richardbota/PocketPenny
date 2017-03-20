@@ -30,5 +30,29 @@ namespace PocketPenny.Controllers
             // Return partial with list
             return PartialView(categoryVMList);
         }
+
+        // GET: /shop/category/name
+        public ActionResult Category(string name)
+        {
+            // Declare a list of ProductVM
+            List<ProductVM> productVMList;
+
+            using (Db db = new Db())
+            {
+                // Get category id
+                CategoryDTO categoryDTO = db.Categories.Where(x => x.Slug == name).FirstOrDefault();
+                int catId = categoryDTO.Id;
+
+                // Init the list
+                productVMList = db.Products.ToArray().Where(x => x.CategoryId == catId).Select(x => new ProductVM(x)).ToList();
+
+                // Get the category name
+                var productCat = db.Products.ToArray().Where(x => x.CategoryId == catId).FirstOrDefault();
+                ViewBag.CategoryName = productCat.CategoryName;
+            }
+
+            // Return view with list
+            return View(productVMList);
+        }
     }
 }
