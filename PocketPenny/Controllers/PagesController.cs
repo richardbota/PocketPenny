@@ -54,5 +54,25 @@ namespace PocketPenny.Controllers
             // Return view with model
             return View(model);
         }
+
+        public ActionResult PagesMenuPartial()
+        {
+            // Declare a list of pageVM
+            List<PageVM> pageVMList;
+
+            // Get all pages exept home
+            using (Db db = new Db())
+            {
+                pageVMList =
+                    db.Pages.ToArray()
+                        .OrderBy(x => x.Sorting)
+                        .Where(x => x.Slug != "home")
+                        .Select(x => new PageVM(x))
+                        .ToList();
+            }
+
+            // Return partial view with list
+            return PartialView(pageVMList);
+        }
     }
 }
