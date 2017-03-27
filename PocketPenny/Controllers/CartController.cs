@@ -43,7 +43,7 @@ namespace PocketPenny.Controllers
             CartVM model = new CartVM();
 
             // Init quantity
-            int gty = 0;
+            int qty = 0;
 
             // Init price
             decimal price = 0m;
@@ -56,9 +56,12 @@ namespace PocketPenny.Controllers
 
                 foreach (var item in list)
                 {
-                    gty += item.Quantity;
+                    qty += item.Quantity;
                     price += item.Quantity * item.Price;
                 }
+
+                model.Quantity = qty;
+                model.Price = price;
             }
             else
             {
