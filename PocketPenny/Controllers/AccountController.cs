@@ -11,6 +11,21 @@ namespace PocketPenny.Controllers
         // GET: Account
         public ActionResult Index()
         {
+            return Redirect("~/account/login");
+        }
+
+        // GET: /account/login
+        public ActionResult Login()
+        {
+            // Confirm user is not logeed in
+
+            string username = User.Identity.Name;
+
+            if (!string.IsNullOrEmpty(username))
+                return RedirectToAction("user-profile");
+            
+
+            // Return view
             return View();
         }
 
