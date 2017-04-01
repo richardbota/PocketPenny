@@ -169,5 +169,29 @@ namespace PocketPenny.Controllers
             // Return patial view with model
             return PartialView(model);
         }
+
+        // GET: /account/user-profile
+        [HttpGet]
+        [ActionName("user-profile")]
+        public ActionResult UserProfile()
+        {
+            // Get username
+            string username = User.Identity.Name;
+
+            // Declare model
+            UserProfileVM model;
+
+            using (Db db = new Db())
+            {
+                // Get user
+                UserDTO dto = db.Users.FirstOrDefault(x => x.Username == username);
+
+                // Build model
+                model = new UserProfileVM(dto);
+            }
+
+            // Return view with model
+            return View("UserProfile", model);
+        }
     }
 }
