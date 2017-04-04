@@ -18,6 +18,6 @@ namespace PocketPenny.Models.Data
         [ForeignKey("UserId")]
         public virtual UserDTO User { get; set; }
         [ForeignKey("RoleId")]
-        public virtual UserDTO Role { get; set; }
+        public virtual RoleDTO Role { get; set; }
     }
 }
