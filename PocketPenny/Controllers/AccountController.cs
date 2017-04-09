@@ -6,6 +6,7 @@ using System.Web.Mvc;
 using System.Web.Security;
 using PocketPenny.Models.ViewModels.Account;
 using PocketPenny.Models.Data;
+using PocketPenny.Models.ViewModels.Shop;
 
 namespace PocketPenny.Controllers
 {
@@ -192,6 +193,126 @@ namespace PocketPenny.Controllers
 
             // Return view with model
             return View("UserProfile", model);
+        }
+
+        // POST: /account/user-profile
+        [HttpPost]
+        [ActionName("user-profile")]
+        public ActionResult UserProfile(UserProfileVM model)
+        {
+            // Check model state
+            if (!ModelState.IsValid)
+            {
+                return View("UserProfile", model);
+            }
+
+            // Check if passwords match if need be
+            if (!string.IsNullOrWhiteSpace(model.Password))
+            {
+                if (!model.Password.Equals(model.ConfirmPassword))
+                {
+                    ModelState.AddModelError("", "Passwords do not match.");
+                    return View("UserProfile", model);
+                }
+            }
+
+            using (Db db = new Db())
+            {
+                // Get username
+                string username = User.Identity.Name;
+
+                // Make sure username is unique
+                if (db.Users.Where(x => x.Id != model.Id).Any(x => x.Username == username))
+                {
+                    ModelState.AddModelError("", "Username " + model.Username + " already exists.");
+                    model.Username = "";
+                    return View("UserProfile", model);
+                }
+
+                // Edit DTO
+                UserDTO dto = db.Users.Find(model.Id);
+
+                dto.FirstName = model.FirstName;
+                dto.LastName = model.LastName;
+                dto.EmailAddress = model.EmailAddress;
+                dto.Username = model.Username;
+
+                if (!string.IsNullOrWhiteSpace(model.Password))
+                {
+                    dto.Password = model.Password;
+                }
+
+                // Save
+                db.SaveChanges();
+            }
+
+            // Set TempData message
+            TempData["SM"] = "You have edited your profile!";
+
+            // Redirect
+            return Redirect("~/account/user-profile");
+        }
+
+        // GET: /account/Orders
+        public ActionResult Orders()
+        {
+            // Init list of OrdersForUserVM
+            List<OrdersForUserVM> ordersForUser = new List<OrdersForUserVM>();
+
+            using (Db db = new Db())
+            {
+                // Get user id
+                UserDTO user = db.Users.Where(x => x.Username == User.Identity.Name).FirstOrDefault();
+                int userId = user.Id;
+
+                // Init list of OrderVM
+                List<OrderVM> orders = db.Orders.Where(x => x.UserId == userId).ToArray().Select(x => new OrderVM(x)).ToList();
+
+                // Loop through list of OrderVM
+                foreach (var order in orders)
+                {
+                    // Init products dict
+                    Dictionary<string, int> productsAndQty = new Dictionary<string, int>();
+
+                    // Declare total
+                    decimal total = 0m;
+
+                    // Init list of OrderDetailsDTO
+                    List<OrderDetailsDTO> orderDetailsDTO = db.OrderDetails.Where(x => x.OrderId == order.OrderId).ToList();
+
+                    // Loop though list of OrderDetailsDTO
+                    foreach (var orderDetails in orderDetailsDTO)
+                    {
+                        // Get product
+                        ProductDTO product = db.Products.Where(x => x.Id == orderDetails.ProductId).FirstOrDefault();
+
+                        // Get product price
+                        decimal price = product.Price;
+
+                        // Get product name
+                        string productName = product.Name;
+
+                        // Add to products dict
+                        productsAndQty.Add(productName, orderDetails.Quantity);
+
+                        // Get total
+                        total += orderDetails.Quantity * price;
+                    }
+
+                    // Add to OrdersForUserVM list
+                    ordersForUser.Add(new OrdersForUserVM()
+                    {
+                        OrderNumber = order.OrderId,
+                        Total = total,
+                        ProductsAndQty = productsAndQty,
+                        CreatedAt = order.CreatedAt
+                    });
+                }
+
+            }
+
+            // Return view with list of OrdersForUserVM
+            return View(ordersForUser);
         }
     }
 }
