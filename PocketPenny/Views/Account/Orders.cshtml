@@ -34,7 +34,7 @@ else
                     @Html.DisplayFor(modelItem => item.OrderNumber)
                 </td>
                 <td>
-                    @foreach (var item2 in item.ProductAndQty)
+                    @foreach (var item2 in item.ProductsAndQty)
                     {
                         @item2.Key @:x @item2.Value <br />
                     }
