@@ -2,10 +2,10 @@
 
 <h3>Categories</h3>
 
-<ul>
+<ul class="categories">
     @foreach (var item in Model)
     {
-        <li><a href="/shop/category/@item.Slug.ToLower()">@item.Name</a></li>
+        <li class="btn btn-default" role="button"><a href="/shop/category/@item.Slug.ToLower()">@item.Name</a></li>
     }
 </ul>
 
