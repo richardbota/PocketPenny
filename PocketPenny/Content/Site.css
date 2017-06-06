@@ -1,8 +1,4 @@
-﻿body {
-    background-image: url('../fileman/images/white_leather.png');
-}
-
-table.sorting tr:not(.home) {
+﻿table.sorting tr:not(.home) {
     cursor: pointer;
 }
 
